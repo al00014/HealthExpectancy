@@ -1,60 +1,88 @@
-#' HeaLY function
+#' HeathExpectancy function
 #'
-#' This function estimates HeaLY and its rate, HeaLY due to death and
-#' its proportion, HeaLY due to disability and its proportions, based on input
-#' of age-specific mortality, prevalence and incidence cases. It can also accept
-#' input of incidence rate, case fatality ratio and case disability ratio which
-#' summarized for all age groups.
-#' The most outstanding feature of this function is that it accepts
-#' the above two methods (example below).
-#' The default age group should be 19 groups, starting from 0~1, 1~4, and then
-#' by 5 years up to 85+.
-#' HeaLY is a summarized indicator for all age group, unlike DALY, which can be dissected by age group.
-#'
-#' @param year an indicator of years covered by data.
-#' @param gender a character indicator for gender.
-#' @param time_range a number showing the range of years for taking discount.
-#' @param Population a vector of age-specific population.
-#' @param Incidence_case a vector of incidence cases for a specific disease, by age group.
-#' @param Mortality_case a vector of mortality cases for a specific disease, by age group.
-#' @param Prevalence_case a vector of prevalence cases for a specific disease, by age group.
-#' @param Duration_byage a vector of duration for a specific disease, by age group. This function currently do not take in uncertainty range for Duration_byage.
-#' @param Age_onset_byage a vector of age_onset for a specific disease, by age group.
-#' @param Standard_LifeExpectancy a vector of age-specific life expectancy, current default standard is the Coale and Demeny West Level 26 life table, can only accept LE for one gender. But if use EAo instead, the HeaLY result may be meaningful for both genders, as shown in example 1.
-#' @param P a direct summarized indicator for population of all age groups, for only one gender.
-#' @param I Incidence rate per 1000 population (default) per year, a direct summarized indicator for all age groups. per X population is controlled by person_units argument.
-#' @param Af Average age at death, a direct summarized indicator for all age groups.
-#' @param Ao Average age at onset, a direct summarized indicator for all age groups.
-#' @param EAo Expectation of life at age of onset, a direct summarized indicator for all age groups.
-#' @param Dt Average duration of disability for those disabled by the disease; a composite of temporary and permanent disability based on the proportion of cases in each category. A direct summarized indicator for all age groups.
-#' @param CFR Case fatality ratio:proportion of those developing the disease who die from the disease, range from 0-1, a direct summarized indicator for all age groups
-#' @param verbose controls results log in console. Default to True.
-#' @param Duration_interval  must comply with Duration_byage or Dt. If use Duration_byage, than Duration_interval must also have the same number of rows by age matching Duration_byage.
-#' @param DisabilityWeight_interval must comply with Duration_interval. If Duration_interval is by age, DisabilityWeight_interval must be by age. If Duration_interval is for all age groups, so should DisabilityWeight_interval.
-#' @param ...
-#' @return A list of HeaLY, rates and proportion. If uncertainty_range=TRUE, a list of interval results would be returned.
-#' @keywords HeaLY, mcmc_sample
+#' @description 
+#' This function estimates HALE or DFLE and its uncertainty (if uncertainty_range=TRUE).
+#' HALE will only be estimated when input of mHUI is HRQOL.
+#' DFLE will only be estimated when input of mHUI is prevalence of disability.
+#' mHUI is an important argument for this function, short for mean Health Utilities Index.
+#' The function produces age-specific HALE or DFLE estimates.
+#' But the default age group should be 20 groups, starting from 0~1, 1~4, and then
+#' by 5 years up to 90+. So it can always be altered to suit specific needs in real data analysis.
+#' 
+#' @details 
+#' HeathExpectancy relies heavily on LT() function from LifeTable package, developed by Tim Riffe.
+#' Most of the arguments for this function can be referenced to the LifeTable::LT() function.
+#' This dependent package should come with the installation of the current package, if not mannual install via the following steps:
+#' # install.packages("devtools")
+#' library(devtools)
+#' install_github("timriffe/LifeTable", subdir = "LifeTable")
+
+#' @param mHUI the mean Health Utilities Index, an important argument for this function, can be HRQOL or prevalence of disability.
+#' @param mHUI_input a character indicator for mHUI. Accept either 'HRQOL' or 'prevalence'.
+#' @param Nx numeric vector of population exposures by age.
+#' @param Dx numeric vector of death counts by age.
+#' @param Mx (optional) numeric vector of central death rates (assumed in the function to be the lifetable m(x)), calculated as deaths/exposure.
+#' @param ages a numeric vector indicating data age group. (Not an optional argument!)
+#' @param axmethod either "keyfitz", "schoen", "preston" or "midpoint". Default = "keyfitz", although this is not recommended for abridged ages. See comparisons in axEstimate examples. The user can also supply a numeric vector of a(x) values here (e.g. from a different estimation procedure or from a different population).
+#' @param sex either "male" or "female" (default). It is only necessary to specify this if "preston" is the axmethod. It does not affect any other lifetable calculations.
+#' @param mxsmooth logical, default = TRUE. Should the mx vector be smoothed? If TRUE and both Nx and Dx vectors are supplied (the ideal case), smoothing is done using the function Mort1Dsmooth() from Giancarlo Camarda's MortalitySmooth package. In this case, Dx values are smoothed using log(Nx) as an offset, and all other items are the function defaults. If Mx is provided instead of Nx and Dx a loess smoother is used, loess, with span set to .15 for single age data and .4 for 5-year abridged data. If these smoothing procedures are not satisfactory, the user may wish to pre-process the Mx estimate and specify mxsmooth = FALSE, or else leave it rough.
+#' @param axsmooth logical, default = TRUE. Ignored if mxsmooth = TRUE. Should the a(x) values be calculated from a smoothed M(x) series? In this case, the M(x) series is smoothed within the axEstimate() function for a(x) estimation, but the smoothed M(x) function that was used is not returned. In general, it is better to smooth the M(x) function prior to putting it in this function, because the loess smoother used here has no weights or offset. If this is not possible, loess M(x) smoothing still produces more consistent and less erratic a(x) estimates. If mxsmooth = FALSE and axsmooth = TRUE, the Mx series is only smoothed for use in a(x) estimation, and does not affect any other lifetable calculations that are dependent on Mx.
+#' @param radix The lifetable starting population at age 0, l(0). default = 1. Other common values are 1000 and 100000, although any value may be given.
+#' @param verbose logical, default = TRUE. Should informative but possibly annoying messages be returned when the function does something that you might want to know about?
+#' @param actual_death_counts Actual counts of death for each age interval, used in calculating variances of life table functions.
+#' @param uncertainty_range an argument controlling the output of uncertainty range, default to TRUE.
+#' @return A list of HALE or DFLE and its uncertainty (if uncertainty_range=TRUE).
+#' @keywords HALE, DFLE
 #' @export
 #' @examples
-#' Example 1: (Without input of population)
-#' Data from "Measuring the burden of disease: healthy life-years."
-#' PMCID: PMC1508183
+#' Example 1: 
+#' Data from Human Mortality Database, as downloaded in May, 2010. www.mortality.org.
 #'
-#' ########### Directly input of indicators summarized for all age groups
+#' ########### Example for calculating HALE
 #'
-#' ##### without uncertainty range
-#' HeaLY(year="1976-1981",
-#'       gender='males and females',
-#'       I=40, # method 1
-#'       Af=1,
-#'       Ao=1,
-#'       EAo=81.84,
-#'       CDR=1,
-#'       Disability_weight=0.9,
-#'       Dt=1.48,
-#'       CFR=0.02,
-#'       time_range=6,
-#'       uncertainty_range=FALSE)
+#' ##### without uncertainty range 
+#' HeathExpectancy(mHUI=HRQOL$Male,
+#'                 mHUI_input='HRQOL',
+#'                 Mx =UKR5males1965_sub$Mx, 
+#'                 ages =c(0,1,seq(5,90,by=5)),
+#'                 axmethod = "schoen", 
+#'                 sex = "male", 
+#'                 mxsmooth = TRUE,
+#'                 axsmooth = TRUE, 
+#'                 radix = 100000, 
+#'                 verbose = TRUE,
+#'                 uncertainty_range=FALSE)
+#'                
+#'     
+#' ##### with uncertainty range 
+#' HeathExpectancy(mHUI=HRQOL$Male,
+#'                 mHUI_input='HRQOL',
+#'                 Mx =UKR5males1965_sub$Mx, 
+#'                 ages =c(0,1,seq(5,90,by=5)),
+#'                 axmethod = "schoen", 
+#'                 sex = "male", 
+#'                 mxsmooth = TRUE,
+#'                 axsmooth = TRUE, 
+#'                 radix = 100000, 
+#'                 verbose = TRUE,
+#'                 uncertainty_range=TRUE,
+#'                 actual_death_counts=UKR5males1965_sub$Dx)
+#'                
+#' Example 2: (with uncertainty range)
+#' HeathExpectancy(mHUI=Disability_prevalence$Male,
+#'                 mHUI_input='prevalence',
+#'                 Mx =UKR5males1965_sub$Mx, 
+#'                 ages =c(0,1,seq(5,90,by=5)),
+#'                 axmethod = "schoen", 
+#'                 sex = "male", 
+#'                 mxsmooth = TRUE,
+#'                 axsmooth = TRUE, 
+#'                 radix = 100000, 
+#'                 verbose = TRUE,
+#'                 uncertainty_range=TRUE,
+#'                 actual_death_counts=UKR5males1965_sub$Dx)
+#'                 
+#'                                                                                   
 HeathExpectancy<-function(mHUI=NULL,
                           mHUI_input=NULL,
                           Nx = NULL, 
@@ -94,6 +122,7 @@ HeathExpectancy<-function(mHUI=NULL,
                 output_indicator<-'DFLE'
         }
         LT_obj
+        mHUI
         
         
         return_list<-list(Indicator=output_indicator,
