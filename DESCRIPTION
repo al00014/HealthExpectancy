@@ -3,8 +3,8 @@ Title: What the Package Does (one line, title case)
 Version: 0.0.0.9000
 Authors@R: person("Antonio", "Lam", email = "linxiao6@mail2.sysu.edu.cn", role = c("aut", "cre"))
 Description: A package to calculate HALE or DFLE.
-Depends: R (>= 3.4.0),
-		 Remotes: github::timriffe/LifeTable/LifeTable
+Depends: R (>= 3.4.0)
+Remotes: github::timriffe/LifeTable/LifeTable
 License: What license is it under? My license ^_^
 Encoding: UTF-8
 LazyData: true
