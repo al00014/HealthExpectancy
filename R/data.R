@@ -37,7 +37,7 @@
 #' @references 
 #' Human Mortality Database. University of California, Berkeley (USA), and Max Planck Institute for Demographic Research (Germany). Available at www.mortality.org or www.humanmortality.de (data downloaded on 10 May, 2010).
 #' 
-"UKR5males1965"
+"UKRmales1965"
 
 #' Example disability data for Ukraine males.
 #' 
