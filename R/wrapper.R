@@ -35,12 +35,14 @@
 #' @param alpha sets the alpha level for uncertainty range, default to 0.05. Only works when uncertainty_range=TRUE.
 #' @param digits sets the number of decimal places.
 #' @return A list of HALE or DFLE and its uncertainty (if uncertainty_range=TRUE). 
-#' \describe HALE or DFLE is a data.frame file in the output list. The df has the following basic structure, whether uncertainty_range is TRUE or FALSE:
+#' \describe { HALE or DFLE is a data.frame file in the output list. The df file has the following basic structure, whether uncertainty_range is TRUE or FALSE:
+#' }
 #'    \item{age}{a numeric vector indicating data age group used by the function.}
 #'    \item{age_interval}{the age interval used in the function.}
 #'    \item{ex}{typical lifetable ex. Life remaining life expectancy at age x. e(0) = life expectancy at birth.}
 #'    \item{HealthExpectancy}{The desired Health expectancy indicator, should be either HALE or DFLE, depending on the specification of mHUI}
-#' \describe when uncertainty_range=TRUE, extra components will be added to the df columns.
+#' \describe { when uncertainty_range=TRUE, extra components will be added to the df columns.
+#'  }
 #' 
 #' @keywords HALE, DFLE
 #' @export
