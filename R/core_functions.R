@@ -1,103 +1,4 @@
-#' HeathExpectancy function
-#'
-#' @description 
-#' This function estimates HALE or DFLE and its uncertainty (if uncertainty_range=TRUE).
-#' HALE will only be estimated when input of mHUI is HRQOL.
-#' DFLE will only be estimated when input of mHUI is prevalence of disability.
-#' mHUI is an important argument for this function, short for mean Health Utilities Index.
-#' The function produces age-specific HALE or DFLE estimates.
-#' But the default age group should be 20 groups, starting from 0~1, 1~4, and then
-#' by 5 years up to 90+. So it can always be altered to suit specific needs in real data analysis.
-#' 
-#' @details 
-#' HeathExpectancy relies heavily on LT() function from LifeTable package, developed by Tim Riffe.
-#' Most of the arguments for this function can be referenced to the LifeTable::LT() function.
-#' This dependent package should come with the installation of the current package, if not mannual install via the following steps:
-#' # install.packages("devtools")
-#' library(devtools)
-#' install_github("timriffe/LifeTable", subdir = "LifeTable")
-
-#' @param mHUI the mean Health Utilities Index, an important argument for this function, can be HRQOL or prevalence of disability.
-#' @param mHUI_input a character indicator for mHUI. Accept either 'HRQOL' or 'prevalence'.
-#' @param Nx numeric vector of population exposures by age.
-#' @param Dx numeric vector of death counts by age.
-#' @param Mx (optional) numeric vector of central death rates (assumed in the function to be the lifetable m(x)), calculated as deaths/exposure.
-#' @param ages a numeric vector indicating data age group. (Not an optional argument!), default is 0~1,1~4, 5-year abridged age groups, all the way up to 90+ (A total of 20 age groups).
-#' @param age_interval defines the number of years in the age interval. Note: the default maximum age group is 90+, for these particular age group, years in interval are also set to 5 by hand, with "age_interval=c(diff(c(0,1,seq(5,90,by=5))),5)".
-#' @param axmethod either "keyfitz", "schoen", "preston" or "midpoint". Default = "keyfitz", although this is not recommended for abridged ages. See comparisons in axEstimate examples. The user can also supply a numeric vector of a(x) values here (e.g. from a different estimation procedure or from a different population).
-#' @param sex either "male" or "female" (default). It is only necessary to specify this if "preston" is the axmethod. It does not affect any other lifetable calculations.
-#' @param mxsmooth logical, default = TRUE. Should the mx vector be smoothed? If TRUE and both Nx and Dx vectors are supplied (the ideal case), smoothing is done using the function Mort1Dsmooth() from Giancarlo Camarda's MortalitySmooth package. In this case, Dx values are smoothed using log(Nx) as an offset, and all other items are the function defaults. If Mx is provided instead of Nx and Dx a loess smoother is used, loess, with span set to .15 for single age data and .4 for 5-year abridged data. If these smoothing procedures are not satisfactory, the user may wish to pre-process the Mx estimate and specify mxsmooth = FALSE, or else leave it rough.
-#' @param axsmooth logical, default = TRUE. Ignored if mxsmooth = TRUE. Should the a(x) values be calculated from a smoothed M(x) series? In this case, the M(x) series is smoothed within the axEstimate() function for a(x) estimation, but the smoothed M(x) function that was used is not returned. In general, it is better to smooth the M(x) function prior to putting it in this function, because the loess smoother used here has no weights or offset. If this is not possible, loess M(x) smoothing still produces more consistent and less erratic a(x) estimates. If mxsmooth = FALSE and axsmooth = TRUE, the Mx series is only smoothed for use in a(x) estimation, and does not affect any other lifetable calculations that are dependent on Mx.
-#' @param radix The lifetable starting population at age 0, l(0). default = 1. Other common values are 1000 and 100000, although any value may be given.
-#' @param verbose logical, default = TRUE. Should informative but possibly annoying messages be returned when the function does something that you might want to know about?
-#' @param actual_death_counts Actual counts of death for each age interval, used in calculating variances of life table functions.
-#' @param uncertainty_range an argument controlling the output of uncertainty range, default to TRUE. Also, the default range is double-tail!
-#' @param alpha=0.05 sets the alpha level for uncertainty range, only works when uncertainty_range=TRUE.
-#' @return A list of HALE or DFLE and its uncertainty (if uncertainty_range=TRUE). 
-#' \describe HALE or DFLE is a data.frame file in the output list. The df has the following basic structure, whether uncertainty_range is TRUE or FALSE:
-#'    \item{age}{a numeric vector indicating data age group used by the function.}
-#'    \item{age_interval}{the age interval used in the function.}
-#'    \item{ex}{typical lifetable ex. Life remaining life expectancy at age x. e(0) = life expectancy at birth.}
-#'    \item{HealthExpectancy}{The desired Health expectancy indicator, should be either HALE or DFLE, depending on the specification of mHUI}
-#' \describe when uncertainty_range=TRUE, extra components will be added to the df columns.
-#' 
-#' @keywords HALE, DFLE
-#' @export
-#' @examples
-#' Example 1: 
-#' Data from Human Mortality Database, as downloaded in May, 2010. www.mortality.org.
-#'
-#' ########### Example for calculating HALE
-#'
-#' ##### without uncertainty range 
-#' HeathExpectancy(mHUI=HRQOL$Male,
-#'                 mHUI_input='HRQOL',
-#'                 Mx =UKR5males1965_sub$Mx, 
-#'                 ages =c(0,1,seq(5,90,by=5)),
-#'                 age_interval=c(diff(c(0,1,seq(5,90,by=5))),5),
-#'                 axmethod = "schoen", 
-#'                 sex = "male", 
-#'                 mxsmooth = TRUE,
-#'                 axsmooth = TRUE, 
-#'                 radix = 100000, 
-#'                 verbose = TRUE,
-#'                 uncertainty_range=FALSE)
-#'                
-#'     
-#' ##### with uncertainty range 
-#' HeathExpectancy(mHUI=HRQOL$Male,
-#'                 mHUI_input='HRQOL',
-#'                 Mx =UKR5males1965_sub$Mx, 
-#'                 ages =c(0,1,seq(5,90,by=5)),
-#'                 age_interval=c(diff(c(0,1,seq(5,90,by=5))),5),
-#'                 axmethod = "schoen", 
-#'                 sex = "male", 
-#'                 mxsmooth = TRUE,
-#'                 axsmooth = TRUE, 
-#'                 radix = 100000, 
-#'                 verbose = TRUE,
-#'                 uncertainty_range=TRUE,
-#'                 alpha=0.05,
-#'                 actual_death_counts=UKR5males1965_sub$Dx)
-#'                
-#' Example 2: (with uncertainty range)
-#' HeathExpectancy(mHUI=Disability_prevalence$Male,
-#'                 mHUI_input='prevalence',
-#'                 Mx =UKR5males1965_sub$Mx, 
-#'                 ages =c(0,1,seq(5,90,by=5)),
-#'                 age_interval=c(diff(c(0,1,seq(5,90,by=5))),5),
-#'                 axmethod = "schoen", 
-#'                 sex = "male", 
-#'                 mxsmooth = TRUE,
-#'                 axsmooth = TRUE, 
-#'                 radix = 100000, 
-#'                 verbose = TRUE,
-#'                 uncertainty_range=TRUE,
-#'                 alpha=0.05,
-#'                 actual_death_counts=UKR5males1965_sub$Dx)
-#'                 
-#'                                                                                   
-HeathExpectancy<-function(mHUI=NULL,
+HeathExpectancy_core<-function(mHUI=NULL,
                           mHUI_input=NULL,
                           Nx = NULL, 
                           Dx = NULL, 
@@ -112,7 +13,9 @@ HeathExpectancy<-function(mHUI=NULL,
                           verbose = TRUE,
                           uncertainty_range=TRUE,
                           alpha=0.05,
-                          actual_death_counts=NULL){
+                          actual_death_counts=NULL,
+                          survival_plots=TRUE,
+                          digits=2){
         if(missing(ages)){
                 stop('Please specify age vector!! Even though LT() from LifeTable package accepts ages optionally, but NOT this package!')
         }
@@ -182,10 +85,67 @@ HeathExpectancy<-function(mHUI=NULL,
         } else{
                 message(paste0('The argument uncertainty_range is set to ',uncertainty_range,'. No uncertainty range would be output! '))
         }
+        for(i in 3:ncol(HE_output)){
+                HE_output[,i]<-round(HE_output[,i],digits = digits)
+        }
+        #### also output parameters for survival curve
+        Sx_causefree<-LT_obj$lx/LT_obj$lx[1]
+        lx_adjusted<-LT_obj$lx*mHUI
+        Cause_Sx<-lx_adjusted/LT_obj$lx[1]
+        Sx_adj<-Cause_Sx-Sx_causefree
+         
+        #library(reshape2)
         
+        survival_df<-data.frame(age=ages,
+                                age_interval=age_interval,
+                                Sx_cause_free=Sx_causefree,
+                                lx_adj=lx_adjusted,
+                                Sx_Cause=Cause_Sx,
+                                Sx_adj=Sx_adj)
+        if(survival_plots==TRUE){
+                survival_gplot<-reshape2::melt(survival_df,
+                                               # ID variables - all the variables to keep but not split apart on
+                                               id.vars=c('age','age_interval',"lx_adj", "Sx_adj"),
+                                               # The source columns
+                                               measure.vars=c("Sx_cause_free", "Sx_Cause" ),
+                                               # Name of the destination column that will identify the original
+                                               # column that the measurement came from
+                                               variable.name="Type",
+                                               value.name="Rates")
+                gplots<-ggplot2::ggplot(data=survival_gplot)+
+                        geom_line(aes(x=age,y=Rates,group=Type,color=Type))+theme_bw()+
+                        scale_x_continuous(#limits = c(0, 155000),
+                                           breaks = ages#,
+                                           #labels=ages
+                                           )+
+                        xlab('Age')+
+                        theme(axis.title = element_text(#family='Times',
+                                                        size=10,face='bold'),
+                              legend.title=element_blank(),
+                              panel.grid = element_blank(),
+                              #axis.text = element_text(), #angle = 90,
+                              #       # family = 'Times'),
+                              legend.text = element_text(#family='Times',
+                                                         size=10,face='bold'))
+                print(gplots)
+                return_list<-list(Indicator=output_indicator,
+                                  HE_output=HE_output,
+                                  LT_list=LT_obj,
+                                  survival_data=survival_df,
+                                  ggplot_data=list(plot_df=survival_gplot,
+                                                   ggplot=gplots))
+        } else{
+                return_list<-list(Indicator=output_indicator,
+                                  HE_output=HE_output,
+                                  LT_list=LT_obj,
+                                  survival_data=survival_df)#,
+                                  #ggplot_data=list(plot_df=survival_gplot,
+                                  #                 ggplot=gplots))
+        }
+       
+       # plot(survival_df$age,survival_df$Sx,type = 'l',add.new=TRUE)
+       # plot(survival_df$age,survival_df$Cause_free,type = 'o')
         
-        return_list<-list(Indicator=output_indicator,
-                          HE_output=HE_output,
-                          LT_list=LT_obj)
+        return(return_list)
         
 }     
