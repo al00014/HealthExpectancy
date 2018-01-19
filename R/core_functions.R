@@ -113,13 +113,13 @@ HeathExpectancy_core<-function(mHUI=NULL,
                                                variable.name="Type",
                                                value.name="Rates")
                 gplots<-ggplot2::ggplot(data=survival_gplot)+
-                        geom_line(aes(x=age,y=Rates,group=Type,color=Type))+theme_bw()+
-                        scale_x_continuous(#limits = c(0, 155000),
+                        ggplot2::geom_line(aes(x=age,y=Rates,group=Type,color=Type))+ggplot2::theme_bw()+
+                        ggplot2::scale_x_continuous(#limits = c(0, 155000),
                                            breaks = ages#,
                                            #labels=ages
                                            )+
-                        xlab('Age')+
-                        theme(axis.title = element_text(#family='Times',
+                        ggplot2::xlab('Age')+
+                        ggplot2::theme(axis.title = element_text(#family='Times',
                                                         size=10,face='bold'),
                               legend.title=element_blank(),
                               panel.grid = element_blank(),
