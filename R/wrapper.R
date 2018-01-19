@@ -96,7 +96,7 @@
 #'
 #' data(UKR5males1965_disabilityprevalence)
 #' data(UKRmales1965)
-#' HE(mHUI=Disability_prevalence$Male,
+#' HE(mHUI=UKR5males1965_disabilityprevalence$Male,
 #'                 mHUI_input='prevalence',
 #'                 Mx =UKRmales1965$Mx,
 #'                 ages =c(0,1,seq(5,90,by=5)),
