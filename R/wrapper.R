@@ -1,6 +1,6 @@
-#' HeathExpectancy function
+#' HE function
 #'
-#' @description 
+#' @description
 #' This function estimates HALE or DFLE and its uncertainty (if uncertainty_range=TRUE).
 #' HALE will only be estimated when input of mHUI is HRQOL.
 #' DFLE will only be estimated when input of mHUI is prevalence of disability.
@@ -8,9 +8,9 @@
 #' The function produces age-specific HALE or DFLE estimates.
 #' But the default age group should be 20 groups, starting from 0~1, 1~4, and then
 #' by 5 years up to 90+. So it can always be altered to suit specific needs in real data analysis.
-#' 
-#' @details 
-#' HeathExpectancy relies heavily on LT() function from LifeTable package, developed by Tim Riffe.
+#'
+#' @details
+#' HE() function relies heavily on LT() function from LifeTable package, developed by Tim Riffe.
 #' Most of the arguments for this function can be referenced to the LifeTable::LT() function.
 #' This dependent package should come with the installation of the current package, if not mannual install via the following steps:
 #' # install.packages("devtools")
@@ -32,9 +32,10 @@
 #' @param verbose logical, default = TRUE. Should informative but possibly annoying messages be returned when the function does something that you might want to know about?
 #' @param actual_death_counts Actual counts of death for each age interval, used in calculating variances of life table functions.
 #' @param uncertainty_range an argument controlling the output of uncertainty range, default to TRUE. Also, the default range is double-tail!
+#' @param survival_plots (logical) Do you want to get a survival plot, sir?
 #' @param alpha sets the alpha level for uncertainty range, default to 0.05. Only works when uncertainty_range=TRUE.
 #' @param digits sets the number of decimal places.
-#' @return A list of HALE or DFLE and its uncertainty (if uncertainty_range=TRUE). 
+#' @return A list of HALE or DFLE and its uncertainty (if uncertainty_range=TRUE).
 #' \describe { HALE or DFLE is a data.frame file in the output list. The df file has the following basic structure, whether uncertainty_range is TRUE or FALSE:
 #' }
 #'    \item{age}{a numeric vector indicating data age group used by the function.}
@@ -43,98 +44,98 @@
 #'    \item{HealthExpectancy}{The desired Health expectancy indicator, should be either HALE or DFLE, depending on the specification of mHUI}
 #' \describe { when uncertainty_range=TRUE, extra components will be added to the df columns.
 #'  }
-#' 
+#'
 #' @keywords HALE, DFLE
 #' @export
 #' @examples
-#' Example 1: 
+#' Example 1:
 #' Data from Human Mortality Database, as downloaded in May, 2010. www.mortality.org.
 #'
 #' ########### Example for calculating HALE
 #'
-#' ##### without uncertainty range 
-#' HeathExpectancy(mHUI=HRQOL$Male,
+#' ##### without uncertainty range
+#' HE(mHUI=HRQOL$Male,
 #'                 mHUI_input='HRQOL',
-#'                 Mx =UKRmales1965$Mx, 
+#'                 Mx =UKRmales1965$Mx,
 #'                 ages =c(0,1,seq(5,90,by=5)),
 #'                 age_interval=c(diff(c(0,1,seq(5,90,by=5))),5),
-#'                 axmethod = "schoen", 
-#'                 sex = "male", 
+#'                 axmethod = "schoen",
+#'                 sex = "male",
 #'                 mxsmooth = TRUE,
-#'                 axsmooth = TRUE, 
-#'                 radix = 100000, 
+#'                 axsmooth = TRUE,
+#'                 radix = 100000,
 #'                 verbose = TRUE,
 #'                 digits=2,
 #'                 survival_plots=TRUE,
 #'                 uncertainty_range=FALSE)
-#'                
-#'     
-#' ##### with uncertainty range 
-#' HeathExpectancy(mHUI=HRQOL$Male,
+#'
+#'
+#' ##### with uncertainty range
+#' HE(mHUI=HRQOL$Male,
 #'                 mHUI_input='HRQOL',
-#'                 Mx =UKRmales1965$Mx, 
+#'                 Mx =UKRmales1965$Mx,
 #'                 ages =c(0,1,seq(5,90,by=5)),
 #'                 age_interval=c(diff(c(0,1,seq(5,90,by=5))),5),
-#'                 axmethod = "schoen", 
-#'                 sex = "male", 
+#'                 axmethod = "schoen",
+#'                 sex = "male",
 #'                 mxsmooth = TRUE,
-#'                 axsmooth = TRUE, 
-#'                 radix = 100000, 
+#'                 axsmooth = TRUE,
+#'                 radix = 100000,
 #'                 verbose = TRUE,
 #'                 uncertainty_range=TRUE,
 #'                 alpha=0.05,
 #'                 digits=2,
 #'                 survival_plots=TRUE,
 #'                 actual_death_counts=UKRmales1965$Dx)
-#'                
+#'
 #' Example 2: (with uncertainty range)
-#' HeathExpectancy(mHUI=Disability_prevalence$Male,
+#' HE(mHUI=Disability_prevalence$Male,
 #'                 mHUI_input='prevalence',
-#'                 Mx =UKRmales1965$Mx, 
+#'                 Mx =UKRmales1965$Mx,
 #'                 ages =c(0,1,seq(5,90,by=5)),
 #'                 age_interval=c(diff(c(0,1,seq(5,90,by=5))),5),
-#'                 axmethod = "schoen", 
-#'                 sex = "male", 
+#'                 axmethod = "schoen",
+#'                 sex = "male",
 #'                 mxsmooth = TRUE,
-#'                 axsmooth = TRUE, 
-#'                 radix = 100000, 
+#'                 axsmooth = TRUE,
+#'                 radix = 100000,
 #'                 verbose = TRUE,
 #'                 uncertainty_range=TRUE,
 #'                 alpha=0.05,
 #'                 digits=2,
 #'                 survival_plots=TRUE,
 #'                 actual_death_counts=UKRmales1965$Dx)
-#'                 
-HeathExpectancy<-function(mHUI=NULL,
-                               mHUI_input=NULL,
-                               Nx = NULL, 
-                               Dx = NULL, 
-                               Mx = Dx/Nx, 
-                               ages =c(0,1,seq(5,90,by=5)),
-                               age_interval=c(diff(c(0,1,seq(5,90,by=5))),5),
-                               axmethod = "midpoint", 
-                               sex = "male", 
-                               mxsmooth = TRUE,
-                               axsmooth = TRUE, 
-                               radix = 100000, 
-                               verbose = TRUE,
-                               uncertainty_range=TRUE,
-                               alpha=0.05,
-                               actual_death_counts=NULL,
-                               survival_plots=TRUE,
-                               digits=2){
+#'
+HE<-function(mHUI=NULL,
+             mHUI_input=NULL,
+             Nx = NULL,
+             Dx = NULL,
+             Mx = Dx/Nx,
+             ages =c(0,1,seq(5,90,by=5)),
+             age_interval=c(diff(c(0,1,seq(5,90,by=5))),5),
+             axmethod = "midpoint",
+             sex = "male",
+             mxsmooth = TRUE,
+             axsmooth = TRUE,
+             radix = 100000,
+             verbose = TRUE,
+             uncertainty_range=TRUE,
+             alpha=0.05,
+             actual_death_counts=NULL,
+             survival_plots=TRUE,
+             digits=2){
         output<-HeathExpectancy_core(mHUI=mHUI,
                              mHUI_input=mHUI_input,
-                             Nx = Nx, 
-                             Dx = Dx, 
-                             Mx = Mx, 
+                             Nx = Nx,
+                             Dx = Dx,
+                             Mx = Mx,
                              ages =ages,
                              age_interval=age_interval,
-                             axmethod = axmethod, 
-                             sex =sex, 
+                             axmethod = axmethod,
+                             sex =sex,
                              mxsmooth = mxsmooth,
-                             axsmooth = axsmooth, 
-                             radix = radix, 
+                             axsmooth = axsmooth,
+                             radix = radix,
                              verbose = verbose,
                              uncertainty_range=uncertainty_range,
                              alpha=alpha,
