@@ -24,9 +24,9 @@ A dataset containing HRQOL for 20 age groups and both genders.
 The age group includes: 0~1, 1~4, and 5-year interval groups, all the way up to 90+. The data comes from http://core.apheo.ca/index.php?pid=223, which is one type of mean Health Utilities Index (mHUI). This HRQOL data represents such an index in the Ontario population, for 1996-1997.
 }
 \references{
-Chiang CL. The Life Table and Its Applications. Malabar, Florida: Robert E. Krieger Publ. Co.; 1984.
-Manuel D, Goel V, Williams J. The derivation of life expectancy at the local level. CDIC 1998;19(2):52-6.
-Péron Y, Strohmneger C. Demographic and Health Indicators - Presentation and Interpretation. Ottawa: Statistics Canada 82-543E; 1992.
-Hsieh J. A general theory of life table construction and a precise abridged life table method. Biom J 1991;2:143-62.
+(1) Chiang CL. The Life Table and Its Applications. Malabar, Florida: Robert E. Krieger Publ. Co.; 1984.
+(2) Manuel D, Goel V, Williams J. The derivation of life expectancy at the local level. CDIC 1998;19(2):52-6.
+(3) Péron Y, Strohmneger C. Demographic and Health Indicators - Presentation and Interpretation. Ottawa: Statistics Canada 82-543E; 1992.
+(4) Hsieh J. A general theory of life table construction and a precise abridged life table method. Biom J 1991;2:143-62.
 }
 \keyword{datasets}
