@@ -3,10 +3,13 @@ Title: What the Package Does (one line, title case)
 Version: 0.0.1.0000
 Authors@R: person("Antonio", "Lam", email = "linxiao6@mail2.sysu.edu.cn", role = c("aut", "cre"))
 Description: A package to calculate HALE or DFLE.
-Depends: R (>= 3.4.0)
+Depends: R (>= 3.4.0),
+		 stats
 Imports: LifeTable,
 	     reshape2,
-		 ggplot2
+		 ggplot2,
+		 MortalitySmooth,
+         svcm
 Remotes: github::timriffe/LifeTable/LifeTable
 License: What license is it under? My license ^_^
 Encoding: UTF-8
