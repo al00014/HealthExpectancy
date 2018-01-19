@@ -1,15 +1,15 @@
 HeathExpectancy_core<-function(mHUI=NULL,
                           mHUI_input=NULL,
-                          Nx = NULL, 
-                          Dx = NULL, 
-                          Mx = Dx/Nx, 
+                          Nx = NULL,
+                          Dx = NULL,
+                          Mx = Dx/Nx,
                           ages =c(0,1,seq(5,90,by=5)),
                           age_interval=c(diff(c(0,1,seq(5,90,by=5))),5),
-                          axmethod = "midpoint", 
-                          sex = "male", 
+                          axmethod = "midpoint",
+                          sex = "male",
                           mxsmooth = TRUE,
-                          axsmooth = TRUE, 
-                          radix = 100000, 
+                          axsmooth = TRUE,
+                          radix = 100000,
                           verbose = TRUE,
                           uncertainty_range=TRUE,
                           alpha=0.05,
@@ -24,15 +24,15 @@ HeathExpectancy_core<-function(mHUI=NULL,
         }
         #### output a list of LT object from LT function using LifeTable developed by timriffe
         LT_obj<-LifeTable::LT(Nx=Nx,Dx=Dx,
-                              Mx=Mx, 
-                              ages=ages, 
-                              axmethod =axmethod, 
+                              Mx=Mx,
+                              ages=ages,
+                              axmethod =axmethod,
                               sex=sex,
-                              mxsmooth = mxsmooth, 
+                              mxsmooth = mxsmooth,
                               axsmooth = axsmooth,
                               radix = radix,
                               verbose=verbose)
-        
+
         ##### judging the output indicator type
         if(mHUI_input=='HRQOL'){
                 message(paste0('Input of mHUI is ',mHUI_input,'. HALE will be calculated!' ))
@@ -68,8 +68,8 @@ HeathExpectancy_core<-function(mHUI=NULL,
                            ex_up=LT_obj$ex[1:length(SE_ex)]+SE_ex*qnorm(alpha/2, mean = 0, sd = 1, lower.tail = FALSE)
                 )
                 ex_range<-rbind(ex_range,c(NA,NA))
-                
-                ### calculate SE for HealthExpectancy 
+
+                ### calculate SE for HealthExpectancy
                 Deriv_SE_HE <-unlist(   lapply(2:length(HealthExpectancy), FUN=function(i){
                         (LT_obj$lx[i-1]^2)*((((1-LT_obj$ax[i-1])*age_interval[i-1])+HealthExpectancy[i])^2)*(((LT_obj$qx[i-1]^2)*(1-LT_obj$qx[i-1]))/actual_death_counts[i-1])
                 }))
@@ -93,9 +93,9 @@ HeathExpectancy_core<-function(mHUI=NULL,
         lx_adjusted<-LT_obj$lx*mHUI
         Cause_Sx<-lx_adjusted/LT_obj$lx[1]
         Sx_adj<-Cause_Sx-Sx_causefree
-         
+
         #library(reshape2)
-        
+
         survival_df<-data.frame(age=ages,
                                 age_interval=age_interval,
                                 Sx_cause_free=Sx_causefree,
@@ -113,19 +113,19 @@ HeathExpectancy_core<-function(mHUI=NULL,
                                                variable.name="Type",
                                                value.name="Rates")
                 gplots<-ggplot2::ggplot(data=survival_gplot)+
-                        ggplot2::geom_line(aes(x=age,y=Rates,group=Type,color=Type))+ggplot2::theme_bw()+
+                        ggplot2::geom_line(ggplot2::aes(x=age,y=Rates,group=Type,color=Type))+ggplot2::theme_bw()+
                         ggplot2::scale_x_continuous(#limits = c(0, 155000),
                                            breaks = ages#,
                                            #labels=ages
                                            )+
                         ggplot2::xlab('Age')+
-                        ggplot2::theme(axis.title = element_text(#family='Times',
+                        ggplot2::theme(axis.title = ggplot2::element_text(#family='Times',
                                                         size=10,face='bold'),
-                              legend.title=element_blank(),
-                              panel.grid = element_blank(),
+                              legend.title=ggplot2::element_blank(),
+                              panel.grid = ggplot2::element_blank(),
                               #axis.text = element_text(), #angle = 90,
                               #       # family = 'Times'),
-                              legend.text = element_text(#family='Times',
+                              legend.text = ggplot2::element_text(#family='Times',
                                                          size=10,face='bold'))
                 print(gplots)
                 return_list<-list(Indicator=output_indicator,
@@ -142,10 +142,10 @@ HeathExpectancy_core<-function(mHUI=NULL,
                                   #ggplot_data=list(plot_df=survival_gplot,
                                   #                 ggplot=gplots))
         }
-       
+
        # plot(survival_df$age,survival_df$Sx,type = 'l',add.new=TRUE)
        # plot(survival_df$age,survival_df$Cause_free,type = 'o')
-        
+
         return(return_list)
-        
-}     
+
+}
