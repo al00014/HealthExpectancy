@@ -53,7 +53,7 @@
 #' ##### without uncertainty range 
 #' HeathExpectancy(mHUI=HRQOL$Male,
 #'                 mHUI_input='HRQOL',
-#'                 Mx =UKR5males1965_sub$Mx, 
+#'                 Mx =UKRmales1965$Mx, 
 #'                 ages =c(0,1,seq(5,90,by=5)),
 #'                 age_interval=c(diff(c(0,1,seq(5,90,by=5))),5),
 #'                 axmethod = "schoen", 
@@ -70,7 +70,7 @@
 #' ##### with uncertainty range 
 #' HeathExpectancy(mHUI=HRQOL$Male,
 #'                 mHUI_input='HRQOL',
-#'                 Mx =UKR5males1965_sub$Mx, 
+#'                 Mx =UKRmales1965$Mx, 
 #'                 ages =c(0,1,seq(5,90,by=5)),
 #'                 age_interval=c(diff(c(0,1,seq(5,90,by=5))),5),
 #'                 axmethod = "schoen", 
@@ -83,12 +83,12 @@
 #'                 alpha=0.05,
 #'                 digits=2,
 #'                 survival_plots=TRUE,
-#'                 actual_death_counts=UKR5males1965_sub$Dx)
+#'                 actual_death_counts=UKRmales1965$Dx)
 #'                
 #' Example 2: (with uncertainty range)
 #' HeathExpectancy(mHUI=Disability_prevalence$Male,
 #'                 mHUI_input='prevalence',
-#'                 Mx =UKR5males1965_sub$Mx, 
+#'                 Mx =UKRmales1965$Mx, 
 #'                 ages =c(0,1,seq(5,90,by=5)),
 #'                 age_interval=c(diff(c(0,1,seq(5,90,by=5))),5),
 #'                 axmethod = "schoen", 
@@ -101,7 +101,7 @@
 #'                 alpha=0.05,
 #'                 digits=2,
 #'                 survival_plots=TRUE,
-#'                 actual_death_counts=UKR5males1965_sub$Dx)
+#'                 actual_death_counts=UKRmales1965$Dx)
 #'                 
 HeathExpectancy<-function(mHUI=NULL,
                                mHUI_input=NULL,
