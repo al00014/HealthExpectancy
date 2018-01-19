@@ -6,3 +6,7 @@ Calculated with mean Health Utilities Index, such as HRQOL (Health-related quali
 
 ### DFLE
 Calculated with prevalence of long-term disability
+
+## How to install
+
+install.packages('devtools') devtools::install_github('al00014/HealthExpectancy',auth_token='1a04ae09ee6c23af26162f643094392697b684b6')
