@@ -77,12 +77,14 @@ library(devtools)
 install_github("timriffe/LifeTable", subdir = "LifeTable")
 }
 \examples{
-Example 1:
+### Example 1:
 Data from Human Mortality Database, as downloaded in May, 2010. www.mortality.org.
 
 ########### Example for calculating HALE
 
 ##### without uncertainty range
+
+data(UKRmales1965)
 HE(mHUI=HRQOL$Male,
                 mHUI_input='HRQOL',
                 Mx =UKRmales1965$Mx,
@@ -100,6 +102,8 @@ HE(mHUI=HRQOL$Male,
 
 
 ##### with uncertainty range
+
+data(UKRmales1965)
 HE(mHUI=HRQOL$Male,
                 mHUI_input='HRQOL',
                 Mx =UKRmales1965$Mx,
@@ -117,7 +121,10 @@ HE(mHUI=HRQOL$Male,
                 survival_plots=TRUE,
                 actual_death_counts=UKRmales1965$Dx)
 
-Example 2: (with uncertainty range)
+### Example 2: (with uncertainty range)
+
+data(UKR5males1965_disabilityprevalence)
+data(UKRmales1965)
 HE(mHUI=Disability_prevalence$Male,
                 mHUI_input='prevalence',
                 Mx =UKRmales1965$Mx,
