@@ -48,12 +48,14 @@ HeathExpectancy(mHUI = NULL, mHUI_input = NULL, Nx = NULL, Dx = NULL,
 }
 \value{
 A list of HALE or DFLE and its uncertainty (if uncertainty_range=TRUE). 
-\describe HALE or DFLE is a data.frame file in the output list. The df has the following basic structure, whether uncertainty_range is TRUE or FALSE:
+\describe { HALE or DFLE is a data.frame file in the output list. The df file has the following basic structure, whether uncertainty_range is TRUE or FALSE:
+}
    \item{age}{a numeric vector indicating data age group used by the function.}
    \item{age_interval}{the age interval used in the function.}
    \item{ex}{typical lifetable ex. Life remaining life expectancy at age x. e(0) = life expectancy at birth.}
    \item{HealthExpectancy}{The desired Health expectancy indicator, should be either HALE or DFLE, depending on the specification of mHUI}
-\describe when uncertainty_range=TRUE, extra components will be added to the df columns.
+\describe { when uncertainty_range=TRUE, extra components will be added to the df columns.
+ }
 }
 \description{
 This function estimates HALE or DFLE and its uncertainty (if uncertainty_range=TRUE).
