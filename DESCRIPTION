@@ -11,4 +11,4 @@ Remotes: github::timriffe/LifeTable/LifeTable
 License: What license is it under? My license ^_^
 Encoding: UTF-8
 LazyData: true
-
+RoxygenNote: 6.0.1
