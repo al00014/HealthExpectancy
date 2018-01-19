@@ -9,7 +9,7 @@
   \item{AgeGroup}{20 age groups, starting from 0~1 and 1~4, then abridged in 5 year interval}
   \item{Male}{Male HRQOL}
   \item{Female}{Female HRQOL}
-  
+
 }}
 \source{
 \url{http://core.apheo.ca/index.php?pid=223/}
